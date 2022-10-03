@@ -6,9 +6,10 @@ import { Dialog } from "primereact/dialog";
 import "../../assets/css/Chat/chat-page.scss";
 import { Message } from "../../data/Message";
 import MessageBlock from "./MessageBlock";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery, useMutation } from "@apollo/client";
 
-const Messages = gql`
+// Query to get all messages
+const MESSAGES = gql`
   query getMessages {
     getMessages {
       id
@@ -21,9 +22,21 @@ const Messages = gql`
   }
 `;
 
+// Mutation to create message
+const CREATE_MESSAGE = gql`
+  mutation newMessage($sender: String!, $content: String!) {
+    newMessage(sender: $sender, content: $content) {
+      id
+      sender
+      timeStamp
+    }
+  }
+`;
+
+// MessageList - Displays all messages in reverse order
+// TOOD: Add pagination
 const MessageList = () => {
-  // TODO: Fix returns and use useQuery hook as intended
-  const { loading, error, data } = useQuery(Messages);
+  const { loading, error, data } = useQuery(MESSAGES);
 
   if (loading) return <i className="pi pi-spinner"></i>;
 
@@ -44,20 +57,66 @@ export function Chat() {
   const [displayDialog, setDisplayDialog] = useState(false);
 
   // TODO: Change mutation to Apollo cache update
-  let messages = MessageList();
+  const messages = MessageList();
 
   const onNewChatClick = () => {
     setDisplayDialog(true);
   };
 
-  const onNewChatSend = () => {
+  const onNewChatSend = (cache: any, { data }: any) => {
     setDisplayDialog(false);
-    messages = MessageList();
+
+    // Update Apollo cache with new message
+    cache.modify({
+      fields: {
+        getMessages(existingMessages = []) {
+          const newMessage = data.newMessage;
+          cache.writeQuery({
+            query: MESSAGES,
+            data: { ...existingMessages, newMessage },
+          });
+        },
+      },
+    });
   };
 
   const onDialogHide = () => {
     setDisplayDialog(false);
   };
+
+  const dialogFooter = (callback: Function) => {
+    return (
+      <>
+        <Button
+          label="Cancel"
+          icon="pi pi-times"
+          onClick={() => {
+            onDialogHide();
+          }}
+          className="p-button-secondary p-button-outlined"
+        />
+        <Button
+          label="Send"
+          icon="pi pi-send"
+          onClick={async () => {
+            await callback({
+              variables: { sender: nameValue, content: messageValue },
+            });
+          }}
+          autoFocus
+        />
+      </>
+    );
+  };
+
+  // Name and message fields for dialog
+  const [nameValue, setNameValue] = useState("");
+  const [messageValue, setMessageValue] = useState("");
+
+  // Apollo mutation hook for sending new message
+  const [create, data] = useMutation(CREATE_MESSAGE, {
+    update: onNewChatSend,
+  });
 
   return (
     <div className="chat-wrapper p-5 h-full">
@@ -80,11 +139,17 @@ export function Chat() {
 
       <Dialog
         header="New Chat"
+        footer={dialogFooter(create)}
         visible={displayDialog}
         style={{ width: "50vw" }}
         onHide={() => onDialogHide()}
       >
-        <NewChatForm callback={onNewChatSend} />
+        <NewChatForm
+          nameValue={nameValue}
+          setNameValue={setNameValue}
+          messageValue={messageValue}
+          setMessageValue={setMessageValue}
+        />
       </Dialog>
     </div>
   );
