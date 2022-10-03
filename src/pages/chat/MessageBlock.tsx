@@ -6,6 +6,7 @@ import { gql, useMutation } from "@apollo/client";
 const LikeMessage = gql`
   mutation likeMessage($id: ID!) {
     likeMessage(id: $id) {
+      id
       likes
     }
   }
@@ -14,20 +15,19 @@ const LikeMessage = gql`
 const DislikeMessage = gql`
   mutation dislikeMessage($id: ID!) {
     dislikeMessage(id: $id) {
+      id
       dislikes
     }
   }
 `;
 
 // TODO: Add reply popup or input element
-// TODO: Convert like += 1 and dislike += 1 to callback function
-// const MessageBlock = (props: {key: String, message: Message, callback: Function}) => {
 const MessageBlock = (props: { key: String; message: Message }) => {
   const message = props.message;
   const timeStamp = new Date(message.timeStamp);
 
-  const [like] = useMutation(LikeMessage);
-  const [dislike] = useMutation(DislikeMessage);
+  const [likeMessage] = useMutation(LikeMessage);
+  const [dislikeMessage] = useMutation(DislikeMessage);
 
   return (
     <div
@@ -56,8 +56,9 @@ const MessageBlock = (props: { key: String; message: Message }) => {
             label={`${message.likes}`}
             className="w-full p-button-success"
             onClick={async () => {
-              await like({ variables: { id: message.id } });
-              message.likes += 1;
+              await likeMessage({
+                variables: { id: message.id, likes: message.likes },
+              });
             }}
           />
         </div>
@@ -67,8 +68,9 @@ const MessageBlock = (props: { key: String; message: Message }) => {
             label={`${message.dislikes}`}
             className="w-full p-button-danger"
             onClick={async () => {
-              await dislike({ variables: { id: message.id } });
-              message.dislikes += 1;
+              await dislikeMessage({
+                variables: { id: message.id, dislikes: message.dislikes },
+              });
             }}
           />
         </div>
