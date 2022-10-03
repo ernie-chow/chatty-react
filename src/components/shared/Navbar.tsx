@@ -22,7 +22,7 @@ const Header = () => {
     },
   ];
 
-  return <Menubar model={links} />;
+  return <Menubar model={links} className="mb-3" />;
 };
 
 export default Header;

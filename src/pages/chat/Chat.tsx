@@ -119,21 +119,23 @@ export function Chat() {
   });
 
   return (
-    <div className="chat-wrapper p-5 h-full">
+    <div className="chat-wrapper overflow-hidden">
       <div className="grid h-full">
-        <div className="col-9 flex flex-column align-items-stretch">
-          <span className="text-xl">Chat Board</span>
-          <div className="mt-3 h-full">
+        <div className="col-9 h-full">
+          <div className="bg-white h-full border-round border-300 p-3 flex flex-column overflow-auto">
+            <span className="text-xl mb-3">Chat Board</span>
             <ChatBoard messageList={messages} />
           </div>
         </div>
-        <div className="col-3 flex justify-content-center border-left-2 border-200 pl-2">
-          <Button
-            icon="pi pi-plus"
-            label="New Chat"
-            className="w-full h-4rem"
-            onClick={() => onNewChatClick()}
-          />
+        <div className="col-3">
+          <div className="flex justify-content-center border-300 border-round bg-white p-3">
+            <Button
+              icon="pi pi-plus"
+              label="New Chat"
+              className="w-full h-4rem"
+              onClick={() => onNewChatClick()}
+            />
+          </div>
         </div>
       </div>
 

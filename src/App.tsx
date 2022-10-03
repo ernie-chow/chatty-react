@@ -28,13 +28,11 @@ function AppRouter() {
       <div id="wrapper" className="text-900">
         <Router>
           <Header />
-          <div className="bg-white border-round-top">
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/chat" element={<Chat />} />
-            </Routes>
-          </div>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/chat" element={<Chat />} />
+          </Routes>
         </Router>
       </div>
     </div>
