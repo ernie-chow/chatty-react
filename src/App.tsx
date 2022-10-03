@@ -1,4 +1,5 @@
 import React from "react";
+import Navbar from "./components/shared/Navbar";
 import Header from "./components/shared/Header";
 import { Home } from "./pages/home/Home";
 import { Chat } from "./pages/chat/Chat";
@@ -27,10 +28,13 @@ function AppRouter() {
       <div id="wrapper" className="text-900">
         <Router>
           <Header />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/chat" element={<Chat />} />
-          </Routes>
+          <div className="bg-white border-round-top">
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/chat" element={<Chat />} />
+            </Routes>
+          </div>
         </Router>
       </div>
     </div>
