@@ -33,7 +33,7 @@ const CREATE_MESSAGE = gql`
   }
 `;
 
-// MessageList - Displays all messages in reverse order
+// MessageList - Displays all messages in reverse chronological order
 // TOOD: Add pagination
 const MessageList = () => {
   const { loading, error, data } = useQuery(MESSAGES);
@@ -55,8 +55,6 @@ const MessageList = () => {
 
 export function Chat() {
   const [displayDialog, setDisplayDialog] = useState(false);
-
-  // TODO: Change mutation to Apollo cache update
   const messages = MessageList();
 
   const onNewChatClick = () => {
