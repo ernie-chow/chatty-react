@@ -7,6 +7,8 @@ import { gql, useMutation } from "@apollo/client";
 const NewChatForm = (props: {
   nameValue: string;
   setNameValue: Function;
+  subjectValue: string;
+  setSubjectValue: Function;
   messageValue: string;
   setMessageValue: Function;
 }) => {
@@ -17,6 +19,14 @@ const NewChatForm = (props: {
         <InputText
           value={props.nameValue}
           onChange={(e) => props.setNameValue(e.target.value)}
+          className="w-full"
+        />
+      </div>
+      <div className="field">
+        <label htmlFor="name">Subject</label>
+        <InputText
+          value={props.subjectValue}
+          onChange={(e) => props.setSubjectValue(e.target.value)}
           className="w-full"
         />
       </div>

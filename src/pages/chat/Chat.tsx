@@ -8,24 +8,57 @@ import { Message } from "../../data/Message";
 import MessageBlock from "./MessageBlock";
 import { gql, useQuery, useMutation } from "@apollo/client";
 
+// Message interfaces
+interface MessageData {
+  getMessages: Message[];
+}
+
 // Query to get all messages
 const MESSAGES = gql`
-  query getMessages {
+  query getAllMessages {
     getMessages {
       id
       sender
+      subject
       timeStamp
       content
       likes
       dislikes
+      replies {
+        id
+        sender
+        content
+        timeStamp
+        likes
+        dislikes
+      }
     }
   }
 `;
 
 // Mutation to create message
 const CREATE_MESSAGE = gql`
-  mutation newMessage($sender: String!, $content: String!) {
-    newMessage(sender: $sender, content: $content) {
+  mutation newMessage($sender: String!, $subject: String!, $content: String!) {
+    newMessage(sender: $sender, subject: $subject, content: $content) {
+      id
+      sender
+      timeStamp
+    }
+  }
+`;
+
+// Mutation to create reply
+const CREATE_REPLY = gql`
+  mutation newReply(
+    $sender: String!
+    $parentMessageId: String
+    $content: String!
+  ) {
+    newMessage(
+      sender: $sender
+      parentMessageId: $parentMessageId
+      content: $content
+    ) {
       id
       sender
       timeStamp
@@ -36,11 +69,11 @@ const CREATE_MESSAGE = gql`
 // MessageList - Displays all messages in reverse chronological order
 // TOOD: Add pagination
 const MessageList = () => {
-  const { loading, error, data } = useQuery(MESSAGES);
+  const { loading, error, data } = useQuery<MessageData>(MESSAGES);
 
   if (loading) return <i className="pi pi-spinner"></i>;
 
-  if (error) return <span>An error has occurred</span>;
+  if (error || data === undefined) return <span>An error has occurred</span>;
 
   return data.getMessages
     .slice(0)
@@ -98,7 +131,11 @@ export function Chat() {
           icon="pi pi-send"
           onClick={async () => {
             await callback({
-              variables: { sender: nameValue, content: messageValue },
+              variables: {
+                sender: nameValue,
+                subject: subjectValue,
+                content: messageValue,
+              },
             });
           }}
           autoFocus
@@ -109,10 +146,11 @@ export function Chat() {
 
   // Name and message fields for dialog
   const [nameValue, setNameValue] = useState("");
+  const [subjectValue, setSubjectValue] = useState("");
   const [messageValue, setMessageValue] = useState("");
 
   // Apollo mutation hook for sending new message
-  const [create, data] = useMutation(CREATE_MESSAGE, {
+  const [create, data] = useMutation<MessageData>(CREATE_MESSAGE, {
     update: onNewChatSend,
   });
 
@@ -147,6 +185,8 @@ export function Chat() {
         <NewChatForm
           nameValue={nameValue}
           setNameValue={setNameValue}
+          subjectValue={subjectValue}
+          setSubjectValue={setSubjectValue}
           messageValue={messageValue}
           setMessageValue={setMessageValue}
         />
